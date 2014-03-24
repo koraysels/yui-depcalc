@@ -1,1 +1,1 @@
-../pages_config.json.
+.

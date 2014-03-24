@@ -34,7 +34,7 @@ module.exports = function (grunt) {
                 options: {
                 },
                 files: {
-                    "dependencies.js" : '../pages_config.json'
+                    "dependencies.js" : '../../pages_config.json'
                 }
             }
 
