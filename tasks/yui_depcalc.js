@@ -38,7 +38,7 @@ module.exports = function (grunt) {
             };
 
             var depcalc = function (jsRequires) {
-                grunt.log.writeln('required modules  = ' + jsRequires);
+//                grunt.log.writeln('required modules  = ' + jsRequires);
 
                 var loader = new Y.Loader({
                     //Setup the base path that your YUI files live in
@@ -83,7 +83,7 @@ module.exports = function (grunt) {
                                 var jsfilepath = json.pagescripts.root, jsRequires = [], jsfilename;
                                 switch (prop) {
                                     case 'root' :
-                                        jsfilepath = json.pagescripts[prop];
+                                        jsfilepath = path.join(__dirname, json.pagescripts[prop]);
 //                                    grunt.log.writeln('rootpath = ' + jsfilepath);
                                         break;
                                     default :
@@ -92,6 +92,7 @@ module.exports = function (grunt) {
                                                 switch (elem) {
                                                     case 'path' :
                                                         jsfilepath += json.pagescripts[prop][elem];
+                                                        jsfilename = jsfilepath.split('.js')[0];
                                                         break;
                                                     case 'uses' :
                                                         jsRequires = json.pagescripts[prop][elem];
@@ -101,10 +102,9 @@ module.exports = function (grunt) {
                                             }
                                         }
                                         // Write the destination file.
-                                        jsfilepath = path.join(options.basePath + jsfilepath);
-                                        var originalfile =  grunt.file.read(jsfilepath, 'utf8');
-                                        grunt.file.write(jsfilepath, depcalc(jsRequires));
-                                        grunt.file.write(jsfilepath, originalfile);
+                                        var originalfile = grunt.file.read(path.join(options.basePath, jsfilepath), 'utf8');
+                                        jsfilepath = path.join(options.basePath + jsfilename + options.extension);
+                                        grunt.file.write(jsfilepath, depcalc(jsRequires) + originalfile);
                                         grunt.log.oklns(jsfilepath);
                                         break;
                                 }

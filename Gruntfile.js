@@ -32,12 +32,12 @@ module.exports = function (grunt) {
         yui_depcalc: {
             default_options: {
                 options: {
-                    basePath: '../../',
-                    modulePath: '../../../WEB-INF/js/',
+                    basePath: '../',
+                    modulePath: '../../WEB-INF/js/',
                     extension: '-res.js',
                 },
                 files: {
-                    "pages_config": '../../config.json'
+                    "pages_config": '../config.json'
                 }
             }
 
