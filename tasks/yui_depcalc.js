@@ -13,114 +13,114 @@ module.exports = function (grunt) {
     // creation: http://gruntjs.com/creating-tasks
 
     grunt.registerMultiTask('yui_depcalc', 'Programatically use Loader to auto-generate a custom seed file with modules needed for immediate access.', function () {
-        // Merge task-specific and/or target-specific options with these defaults.
-        var options = this.options({
-                basePath: '../',
-                extension: '-resolved.js',
-                modulePath: '/js/modules',
-                groups: undefined
-            }),
-            path = require('path'),
-            fs = require('fs'),
-            YUI = require('yui').YUI,
-            Y = YUI(),
-            groups = options.groups,
-            basepath = options.modulePath;
+            // Merge task-specific and/or target-specific options with these defaults.
+            var options = this.options({
+                    basePath: '../',
+                    extension: '-resolved.js',
+                    modulePath: '/js/modules',
+                }),
+                path = require('path'),
+                fs = require('fs'),
+                YUI = require('yui').YUI,
+                Y = YUI(),
+                groups = {},
+                basepath = options.modulePath;
 
-        if (groups === undefined && !grunt.file.exists(groups)) {
-            grunt.log.warn('Groups file "' + groups + '" not found.');
-            return false;
-        } else {
-            groups = grunt.file.readJSON(groups);
-            grunt.log.writeln(groups);
-            //Fixing YUI bug were root does not work
-            for (var group in groups.groups) {
-                if (groups.groups.hasOwnProperty(group)) {
-                    groups.groups[group].base = path.join(basepath, groups.groups[group].root);
+            var groupsProcess = function (file) {
+                //Fixing YUI bug were root does not work
+                for (var group in file) {
+                    if (file.hasOwnProperty(group)) {
+                        grunt.log.writeln("groups = " + group);
+                        file[group].base = path.join(basepath, file[group].root);
+                    }
                 }
-            }
-        }
-        
-        var depcalc = function (jsRequires) {
-            grunt.log.writeln('required modules  = ' + jsRequires);
+                return file;
+            };
 
-            var loader = new Y.Loader({
-                //Setup the base path that your YUI files live in
-                comboBase: '',
-                base: path.join(__dirname, '../node_modules/yui/'),
-                maxURLLength: 1999,
-                injected: true,
-                throwFail: true,
-                ignoreRegistered: false, //NOT SURE WHAT THIS DOES THOUGH
-                require: jsRequires,
-                skin: {},
-                groups: groups.groups
-            });
-            var out = loader.resolve(true);
+            var depcalc = function (jsRequires) {
+                grunt.log.writeln('required modules  = ' + jsRequires);
 
-            var str = [];
-            //Now we have the generated url
-            out.js.forEach(function (file) {
-                //Read the files
-                str.push(fs.readFileSync(file, 'utf8'));
-            });
-            //return all the files out into a single string
-            return str.join('\n');
-        };
+                var loader = new Y.Loader({
+                    //Setup the base path that your YUI files live in
+                    comboBase: '',
+                    base: path.join(__dirname, '../node_modules/yui/'),
+                    maxURLLength: 1999,
+                    injected: true,
+                    throwFail: true,
+                    ignoreRegistered: false, //NOT SURE WHAT THIS DOES THOUGH
+                    require: jsRequires,
+                    skin: {},
+                    groups: groups
+                });
+                var out = loader.resolve(true);
+
+                var str = [];
+                //Now we have the generated url
+                out.js.forEach(function (file) {
+                    //Read the files
+                    str.push(fs.readFileSync(file, 'utf8'));
+                });
+                //return all the files out into a single string
+                return str.join('\n');
+            };
 
 
-        this.files.forEach(function (f) {
-            // Concat specified files.
-            var src = f.src.filter(function (filepath) {
-                // Warn on and remove invalid source files (if nonull was set).
-                if (!grunt.file.exists(filepath)) {
-                    grunt.log.warn('Source file "' + filepath + '" not found.');
-                    return false;
-                } else {
-                    grunt.log.writeln(filepath);
-                    var json = grunt.file.readJSON(filepath);
-                    grunt.log.writeln(json.pagescripts.root);
+            this.files.forEach(function (f) {
+                // Concat specified files.
+                var src = f.src.filter(function (filepath) {
+                    // Warn on and remove invalid source files (if nonull was set).
+                    if (!grunt.file.exists(filepath)) {
+                        grunt.log.warn('Source file "' + filepath + '" not found.');
+                        return false;
+                    } else {
+                        grunt.log.writeln(filepath);
+                        var json = grunt.file.readJSON(filepath);
+                        groups = groupsProcess(json.modules);
+                        grunt.log.writeln(json.pagescripts.root);
 
-                    for (var prop in json.pagescripts) {
-                        if (json.pagescripts.hasOwnProperty(prop)) {
-                            var jsfilepath = json.pagescripts.root, jsRequires = [], jsfilename;
-                            switch (prop) {
-                                case 'root' :
-                                    jsfilepath = json.pagescripts[prop];
+                        for (var prop in json.pagescripts) {
+                            if (json.pagescripts.hasOwnProperty(prop)) {
+                                var jsfilepath = json.pagescripts.root, jsRequires = [], jsfilename;
+                                switch (prop) {
+                                    case 'root' :
+                                        jsfilepath = json.pagescripts[prop];
 //                                    grunt.log.writeln('rootpath = ' + jsfilepath);
-                                    break;
-                                default :
-                                    for (var elem in json.pagescripts[prop]) {
-                                        if (json.pagescripts[prop].hasOwnProperty(elem)) {
-                                            switch (elem) {
-                                                case 'path' :
-                                                    jsfilepath += json.pagescripts[prop][elem];
-                                                    jsfilename = jsfilepath.split('.js')[0];
+                                        break;
+                                    default :
+                                        for (var elem in json.pagescripts[prop]) {
+                                            if (json.pagescripts[prop].hasOwnProperty(elem)) {
+                                                switch (elem) {
+                                                    case 'path' :
+                                                        jsfilepath += json.pagescripts[prop][elem];
+                                                        jsfilename = jsfilepath.split('.js')[0];
 //                                                    grunt.log.writeln('full jsfilepath = ' + jsfilepath);
-                                                    break;
-                                                case 'uses' :
-                                                    jsRequires = json.pagescripts[prop][elem];
+                                                        break;
+                                                    case 'uses' :
+                                                        jsRequires = json.pagescripts[prop][elem];
 
-                                                    break;
+                                                        break;
+                                                }
                                             }
                                         }
-                                    }
-                                    // Write the destination file.
-                                    jsfilepath = path.join(options.basePath + jsfilename + options.extension);
-                                    grunt.file.write(jsfilepath, depcalc(jsRequires));
-                                    grunt.log.oklns(jsfilepath);
-                                    break;
+                                        // Write the destination file.
+                                        jsfilepath = path.join(options.basePath + jsfilename + options.extension);
+                                        grunt.file.write(jsfilepath, depcalc(jsRequires));
+                                        grunt.log.oklns(jsfilepath);
+                                        break;
+                                }
                             }
                         }
+
+
+                        return true;
                     }
+                });
 
-
-                    return true;
-                }
+                grunt.log.writeln('depcalc ended ');
             });
+        }
+    )
+    ;
 
-            grunt.log.writeln('depcalc ended ');
-        });
-    });
-
-};
+}
+;
