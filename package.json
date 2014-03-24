@@ -1,7 +1,7 @@
 {
     "name": "grunt-yui-depcalc",
     "description": "Programatically use Loader to auto-generate a custom seed file with modules needed for immediate access.",
-    "version": "0.1.0",
+    "version": "0.1.2",
     "homepage": "https://github.com/koray.sels/yui-depcalc",
     "author": {
         "name": "koray.sels",

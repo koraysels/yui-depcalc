@@ -92,8 +92,6 @@ module.exports = function (grunt) {
                                                 switch (elem) {
                                                     case 'path' :
                                                         jsfilepath += json.pagescripts[prop][elem];
-                                                        jsfilename = jsfilepath.split('.js')[0];
-//                                                    grunt.log.writeln('full jsfilepath = ' + jsfilepath);
                                                         break;
                                                     case 'uses' :
                                                         jsRequires = json.pagescripts[prop][elem];
@@ -103,8 +101,10 @@ module.exports = function (grunt) {
                                             }
                                         }
                                         // Write the destination file.
-                                        jsfilepath = path.join(options.basePath + jsfilename + options.extension);
+                                        jsfilepath = path.join(options.basePath + jsfilepath);
+                                        var originalfile =  grunt.file.read(jsfilepath, 'utf8');
                                         grunt.file.write(jsfilepath, depcalc(jsRequires));
+                                        grunt.file.write(jsfilepath, originalfile);
                                         grunt.log.oklns(jsfilepath);
                                         break;
                                 }
