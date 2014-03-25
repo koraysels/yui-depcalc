@@ -33,11 +33,11 @@ module.exports = function (grunt) {
             default_options: {
                 options: {
                     basePath: '../../',
-                    modulePath: '../../../WEB-INF/js/',
-                    extension: '-res.js',
+                    modulePath: 'WEB-INF/js/',
+                    appendix: '-res',
                 },
                 files: {
-                    "pages_config": '../../config.json'
+                    "pages_config": '../config.json'
                 }
             }
 

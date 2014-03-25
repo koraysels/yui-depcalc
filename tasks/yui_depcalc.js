@@ -9,36 +9,40 @@
 'use strict';
 module.exports = function (grunt) {
 
+    var contrib = require('grunt-lib-contrib').init(grunt), // Internal lib.
+        path = require('path'),
+        fs = require('fs'),
+        YUI = require('yui').YUI,
+        Y = YUI(),
+        groups = {};
+
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
     grunt.registerMultiTask('yui_depcalc', 'Programatically use Loader to auto-generate a custom seed file with modules needed for immediate access.', function () {
             // Merge task-specific and/or target-specific options with these defaults.
             var options = this.options({
-                    basePath: '../',
-                    extension: '-resolved.js',
-                    modulePath: '/js/modules',
-                }),
-                path = require('path'),
-                fs = require('fs'),
-                YUI = require('yui').YUI,
-                Y = YUI(),
-                groups = {},
-                basepath = options.modulePath;
+                basePath: '../',
+                appendix: 'resolved',
+                modulePath: '/js/modules'
+            });
+
+            grunt.verbose.writeflags(options, 'options');
+
 
             var groupsProcess = function (file) {
                 //Fixing YUI bug were root does not work
                 for (var group in file) {
                     if (file.hasOwnProperty(group)) {
-                        grunt.log.writeln("groups = " + group);
-                        file[group].base = path.join(basepath, file[group].root);
+                        grunt.verbose.writeln("groups found => " + group);
+                        file[group].base = path.join(options.basePath, options.modulePath, file[group].root);
                     }
                 }
                 return file;
             };
 
             var depcalc = function (jsRequires) {
-                grunt.log.writeln('required modules  = ' + jsRequires);
+//                grunt.log.writeln('required modules  = ' + jsRequires);
 
                 var loader = new Y.Loader({
                     //Setup the base path that your YUI files live in
@@ -80,47 +84,46 @@ module.exports = function (grunt) {
 
                         for (var prop in json.pagescripts) {
                             if (json.pagescripts.hasOwnProperty(prop)) {
-                                var jsfilepath = json.pagescripts.root, jsRequires = [], jsfilename;
+                                var jsfilepath, jsrootpath = json.pagescripts.root, jsRequires = [], jsfilename;
                                 switch (prop) {
                                     case 'root' :
-                                        jsfilepath = json.pagescripts[prop];
-//                                    grunt.log.writeln('rootpath = ' + jsfilepath);
+                                        jsrootpath = path.join(__dirname, json.pagescripts[prop]);
+                                        grunt.verbose.writeln('rootpath = ' + jsrootpath);
                                         break;
                                     default :
                                         for (var elem in json.pagescripts[prop]) {
                                             if (json.pagescripts[prop].hasOwnProperty(elem)) {
                                                 switch (elem) {
                                                     case 'path' :
-                                                        jsfilepath += json.pagescripts[prop][elem];
+                                                        jsfilepath = path.join(jsrootpath, json.pagescripts[prop][elem]);
+                                                        grunt.verbose.writeln('jsfilepath = ' + jsfilepath);
                                                         break;
                                                     case 'uses' :
                                                         jsRequires = json.pagescripts[prop][elem];
-
                                                         break;
                                                 }
                                             }
                                         }
-                                        // Write the destination file.
-                                        jsfilepath = path.join(options.basePath + jsfilepath);
-                                        var originalfile =  grunt.file.read(jsfilepath, 'utf8');
-                                        grunt.file.write(jsfilepath, depcalc(jsRequires));
-                                        grunt.file.write(jsfilepath, originalfile);
-                                        grunt.log.oklns(jsfilepath);
+                                        try {
+                                            // Write the destination file.
+                                            var originalfile = grunt.file.read(path.join(options.basePath, jsfilepath), 'utf8');
+                                            jsfilepath = path.join(options.basePath + path.dirname(jsfilepath) + path.sep + path.basename(jsfilepath, path.extname(jsfilepath)) + options.appendix + path.extname(jsfilepath));
+                                            grunt.file.write(jsfilepath, depcalc(jsRequires) + originalfile);
+                                            grunt.log.oklns('Created ' + jsfilepath);
+                                        } catch (e) {
+                                            grunt.log.error();
+                                            grunt.log.error(e);
+                                            grunt.fail.warn('yui dependency calculation operation failed.');
+                                        }
                                         break;
                                 }
                             }
                         }
-
-
                         return true;
                     }
                 });
-
                 grunt.log.writeln('depcalc ended ');
             });
         }
-    )
-    ;
-
-}
-;
+    );
+};
