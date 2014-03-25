@@ -9,8 +9,7 @@
 'use strict';
 module.exports = function (grunt) {
 
-    var contrib = require('grunt-lib-contrib').init(grunt), // Internal lib.
-        path = require('path'),
+    var path = require('path'),
         fs = require('fs'),
         YUI = require('yui').YUI,
         Y = YUI(),
