@@ -34,7 +34,7 @@ module.exports = function (grunt) {
                 options: {
                     basePath: '../../',
                     modulePath: 'WEB-INF/js/',
-                    appendix: '-res',
+                    appendix: '-res'
                 },
                 files: {
                     "pages_config": '../config.json'
@@ -45,7 +45,7 @@ module.exports = function (grunt) {
 
         // Unit tests.
         nodeunit: {
-            tests: ['test/*_test.js'],
+            tests: ['test/*_test.js']
         },
 
     });
