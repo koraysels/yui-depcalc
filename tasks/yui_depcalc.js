@@ -77,10 +77,10 @@ module.exports = function (grunt) {
                         grunt.log.warn('Source file "' + filepath + '" not found.');
                         return false;
                     } else {
-                        grunt.log.writeln(filepath);
+                        grunt.log.writeln('Found file ' + filepath);
                         var json = grunt.file.readJSON(filepath);
                         groups = groupsProcess(json.modules);
-                        grunt.log.writeln(json.pagescripts.root);
+                        grunt.verbose.writeln('Found root in ' + filepath + ' => ' + json.pagescripts.root);
 
                         for (var prop in json.pagescripts) {
                             if (json.pagescripts.hasOwnProperty(prop)) {
