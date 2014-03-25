@@ -112,7 +112,7 @@ module.exports = function (grunt) {
                                             grunt.log.oklns('Created ' + jsfilepath);
                                         } catch (e) {
                                             grunt.log.error();
-                                            grunt.log.error(e);
+                                            grunt.verbose.error(e);
                                             grunt.fail.warn('yui dependency calculation operation failed.');
                                         }
                                         break;
@@ -122,7 +122,7 @@ module.exports = function (grunt) {
                         return true;
                     }
                 });
-                grunt.log.writeln('depcalc ended ');
+                grunt.log.oklns('Depcalc ended');
             });
         }
     );
