@@ -15,9 +15,6 @@ module.exports = function (grunt) {
         Y = YUI(),
         groups = {};
 
-    // Please see the Grunt documentation for more information regarding task
-    // creation: http://gruntjs.com/creating-tasks
-
     grunt.registerMultiTask('yui_depcalc', 'Programatically use Loader to auto-generate a custom seed file with modules needed for immediate access.', function () {
             // Merge task-specific and/or target-specific options with these defaults.
             var options = this.options({
@@ -42,11 +39,10 @@ module.exports = function (grunt) {
 
             var depcalc = function (jsRequires) {
 //                grunt.log.writeln('required modules  = ' + jsRequires);
-
                 var loader = new Y.Loader({
                     //Setup the base path that your YUI files live in
                     comboBase: '',
-                    base: path.join(__dirname, '../node_modules/yui/'),
+                    base: path.join(__dirname, '../../yui/'),
                     maxURLLength: 1999,
                     injected: true,
                     throwFail: true,
@@ -110,8 +106,7 @@ module.exports = function (grunt) {
                                             grunt.file.write(jsfilepath, depcalc(jsRequires) + originalfile);
                                             grunt.log.oklns('Created ' + jsfilepath);
                                         } catch (e) {
-                                            grunt.log.error();
-                                            grunt.verbose.error(e);
+                                            grunt.log.error(e);
                                             grunt.fail.warn('yui dependency calculation operation failed.');
                                         }
                                         break;

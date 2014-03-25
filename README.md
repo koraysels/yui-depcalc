@@ -3,7 +3,7 @@
 > Programatically use Loader to auto-generate a custom seed file with modules needed for immediate access.
 
 ## Getting Started
-This plugin requires Grunt `~0.4.4`
+This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
@@ -26,10 +26,12 @@ In your project's Gruntfile, add a section named `yui_depcalc` to the data objec
 grunt.initConfig({
   yui_depcalc: {
     options: {
-      // Task-specific options go here.
+         basePath: '../../',
+         modulePath: 'WEB-INF/js/',
+         appendix: '-res',
     },
     your_target: {
-      // Target-specific file lists and/or options go here.
+      "pages_config": '../config.json'
     },
   },
 });
